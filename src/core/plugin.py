@@ -68,6 +68,7 @@ class PluginManager:
 
     def _load_module(self, name: str, root: Any):
         try:
+            from pathlib import Path
             # Derive module name relative to the project root (two levels above src/core/)
             project_root = Path(__file__).resolve().parents[2]
             try:
