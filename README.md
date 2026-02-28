@@ -104,12 +104,12 @@ cp .env.example .env
 
 ```ini
 # .env
-AI_BASE_URL=http://127.0.0.1:9009/v1    # Local gateway or OpenAI-compatible endpoint
-AI_API_KEY=your-api-key
-AI_MODEL=gemini-2.5-flash
+AI_BASE_URL=http://localhost:9009/v1     # Local gateway or OpenAI-compatible endpoint
+AI_API_KEY=your-ai-api-key-here
+AI_MODEL=gemini-3.0-pro
 
-GITHUB_TOKEN=ghp_your_token              # For GitHub API access
-GEMINI_API_KEY=your-gemini-key           # Official Gemini API (fallback)
+GITHUB_TOKEN=your-github-token           # For GitHub API access
+GEMINI_API_KEY=your-gemini-api-key-here  # Official Gemini API (fallback)
 ```
 
 Review `config.yaml` for platform-specific settings (subreddits, min stars, keyword presets, etc.).
@@ -278,12 +278,12 @@ Python 3.11+ / asyncio / SQLAlchemy + SQLite / Typer CLI / Pydantic / OpenAI SDK
 
 ## Hermit Purple - AI 趨勢研究與決策支援系統
 
-Hermit Purple 是一款基於插件架構的 AI 趨勢研究工具。它從多個平台抓取資料，透過多引擎 AI 搜索進行交叉驗證，並利用 LLM 合成結構化的情報週報。
+Hermit Purple 是一款基於插件架構的 AI 趨勢研究工具。它從多個平台抓取資料，透過多引擎 AI 搜尋進行交叉驗證，並利用 LLM 合成結構化的情報週報。
 
 ### 核心特色
 
-- **插件架構**: AI Trends、Social Radar、AI Business、Trend Radar 各分析領域皆為獨立插件，新增分析管道只需繼承 `HermitPlugin`，無需修改核心代碼
-- **多源爬取**: 透過直接 API 存取 GitHub、Reddit、YouTube、Bilibili（Tier 1），並以 Perplexica、Gemini Grounding、Grok Search 等 AI 搜索引擎（Tier 2）進行補充
+- **插件架構**: AI Trends、Social Radar、AI Business、Trend Radar 各分析領域皆為獨立插件，新增分析管道只需繼承 `HermitPlugin`，無需修改核心程式碼
+- **多源爬取**: 透過直接 API 存取 GitHub、Reddit、YouTube、Bilibili（Tier 1），並以 Perplexica、Gemini Grounding、Grok Search 等 AI 搜尋引擎（Tier 2）進行補充
 - **交叉驗證引擎**: URL 正規化、標題相似度去重、多引擎引用計數，計算信心分數
 - **LLM 決策大腦**: 每項結果由 AI 評估為 Adopt / Trial / Assess / Hold 四個等級，附帶證據摘要與風險備註
 - **情感分析**: 從社群媒體評論中萃取商業信號（付費意願、痛點、需求信號）
@@ -309,7 +309,7 @@ python -m src.interface.cli run ai_trends
 |---|---|
 | 插件系統 | AI Trends、Social Radar、AI Business、Trend Radar |
 | 資料來源 | GitHub、Reddit、YouTube、Bilibili |
-| AI 搜索引擎 | Perplexica、Gemini Grounding、Grok Search |
+| AI 搜尋引擎 | Perplexica、Gemini Grounding、Grok Search |
 | LLM 整合 | Gemini API / Grok API / Ollama（OpenAI 相容介面） |
 | 交叉驗證 | URL 正規化 + 標題相似度 + 多引擎引用計數 |
 | 持久化 | SQLite + SQLAlchemy ORM |

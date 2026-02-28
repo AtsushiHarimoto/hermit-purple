@@ -1,7 +1,7 @@
 """
-VibeDev Reddit 爬蟲
+Hermit Purple Reddit 爬蟲
 
-用途：使用 PRAW 搜索 Reddit 上的相關帖子
+用途：使用 PRAW 搜尋 Reddit 上的相關帖子
 依賴：PRAW
 """
 

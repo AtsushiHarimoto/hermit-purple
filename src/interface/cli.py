@@ -7,8 +7,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-# Add root to sys.path to ensure absolute imports work
-# root = tools/hermit-purple/
+# Add project root to sys.path to ensure absolute imports work
 root_path = Path(__file__).parents[2]
 if str(root_path) not in sys.path:
     sys.path.insert(0, str(root_path))

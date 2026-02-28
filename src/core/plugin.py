@@ -68,10 +68,13 @@ class PluginManager:
 
     def _load_module(self, name: str, root: Any):
         try:
-            if "tools/hermit-purple/src/plugins" in str(root).replace("\\", "/"):
-                module_name = f"src.plugins.{name}"
-            else:
-                 return
+            # Derive module name relative to the project root (two levels above src/core/)
+            project_root = Path(__file__).resolve().parents[2]
+            try:
+                rel = root.resolve().relative_to(project_root)
+            except ValueError:
+                return
+            module_name = ".".join(rel.parts) + f".{name}"
 
             module = importlib.import_module(module_name)
             
