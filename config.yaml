@@ -1,0 +1,97 @@
+# Hermit Purple Configuration
+# VibeCoding 生態系統追蹤配置 (CLI 版本)
+
+# 全局配置
+global:
+  api_health_url: "http://localhost:PORT/health"
+  default_timeout: 300  # 5 分鐘
+
+# Pipeline 配置
+pipelines:
+  ai_trends:
+    enabled: true
+    prompts_dir: "prompts/ai_trends"
+    models:
+      gemini: "gemini-3.0-pro"
+      grok: "grok-4-fast"
+    timeout: 300
+
+# 平台配置（用於傳統 scrape 命令）
+platforms:
+  github:
+    enabled: true
+    search_type:
+      - repositories
+      - discussions
+    min_stars: 5
+    max_results: 50
+
+  reddit:
+    enabled: true
+    subreddits:
+      - LocalLLaMA
+      - MachineLearning
+      - ClaudeAI
+      - ChatGPT
+      - artificial
+    min_upvotes: 10
+    max_results: 50
+
+  youtube:
+    enabled: true
+    channels: []  # 留空則搜索全站
+    min_views: 1000
+    max_results: 30
+
+  bilibili:
+    enabled: true
+    min_views: 5000
+    max_results: 20
+
+# 關鍵詞配置（用於傳統 scrape 命令）
+# 新版 Pipeline 使用 prompts/{pipeline_name}/keywords.yaml
+keywords:
+  primary:
+    - vibecoding
+    - vibe coding
+    - antigravity
+    - codex
+    - claude code
+    - claude skills
+    - mcp
+    - model context protocol
+    - agentic workflows
+  secondary:
+    - cursor ai
+    - aider
+    - cline
+    - windsurf
+    - copilot
+
+# 三引擎搜尋配置（Tier 2: AI Search）
+engines:
+  perplexica:
+    enabled: true
+    api_url: "http://localhost:PORT"  # Self-hosted Docker
+    chat_model: "qwen3:14b"
+    embedding_model: "nomic-embed-text"
+    timeout: 120
+  gemini:
+    enabled: true
+    gateway_url: "http://localhost:PORT/v1"
+    official_model: "gemini-2.5-flash"
+    grounding: true
+  grok:
+    enabled: true
+    gateway_url: "http://localhost:PORT/v1"
+    gateway_model: "grok-3-fast"
+    official_model: "grok-3-mini-fast"
+
+# 排程配置
+schedule:
+  scrape_interval: daily  # daily / weekly
+  report_day: sunday      # 每週報告生成日
+
+# 數據庫配置
+database:
+  path: data/hermit.db
