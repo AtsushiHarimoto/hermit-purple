@@ -6,6 +6,8 @@
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
 [![Part of Moyin Ecosystem](https://img.shields.io/badge/Moyin-Ecosystem-purple.svg)](https://github.com/AtsushiHarimoto/Moyin-Factory)
 
+🌏 **Languages:** [English](README.md) | [日本語](docs/README.ja.md) | [繁體中文](docs/README.zh-TW.md)
+
 Hermit Purple is a plugin-based AI trend research tool that crawls multiple platforms, cross-validates findings through multi-engine AI search, and synthesizes structured intelligence reports using LLMs.
 
 Built for developers and teams who need to stay ahead of fast-moving AI/tech trends without drowning in noise.
@@ -234,94 +236,6 @@ Hermit Purple is the intelligence-gathering component of [Moyin Factory](https:/
 This project is licensed under [CC BY-NC 4.0](LICENSE) (Creative Commons Attribution-NonCommercial 4.0 International).
 
 You are free to share and adapt this work for non-commercial purposes with appropriate attribution.
-
----
-
-<details>
-<summary><strong>Japanese (日本語)</strong></summary>
-
-## Hermit Purple - AI トレンドリサーチ＆意思決定支援システム
-
-Hermit Purple は、プラグインベースの AI トレンドリサーチツールです。複数プラットフォームをクロールし、マルチエンジン AI 検索による交差検証を行い、LLM を活用して構造化されたインテリジェンスレポートを生成します。
-
-### 主な特徴
-
-- **プラグインアーキテクチャ**: AI Trends、Social Radar、AI Business、Trend Radar の各分析ドメインが独立したプラグインとして実装
-- **マルチソースクローリング**: GitHub、Reddit、YouTube、Bilibili から直接 API で取得。Perplexica、Gemini、Grok による AI 検索で補完
-- **交差検証エンジン**: URL 正規化、タイトル類似度によるデデュプリケーション、複数エンジンの引用カウントで信頼度スコアを算出
-- **LLM 判定ブレイン**: 各結果を Adopt / Trial / Assess / Hold の4段階で評価。エビデンスとリスクノート付き
-- **センチメント分析**: ソーシャルメディアのコメントから商業的シグナル（支払い意欲、ペインポイント）を抽出
-- **MCP サーバー統合**: Claude Code や Stitch などの MCP クライアントとネイティブ連携
-- **レート制限ガード**: ファイルロックベースの UsageGuard で API コスト暴走を防止
-
-### クイックスタート
-
-```bash
-git clone https://github.com/AtsushiHarimoto/hermit-purple.git
-cd hermit-purple
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env  # API キーを設定
-python -m src.interface.cli health
-python -m src.interface.cli run ai_trends
-```
-
-### 技術スタック
-
-Python 3.11+ / asyncio / SQLAlchemy + SQLite / Typer CLI / Pydantic / OpenAI SDK / FastMCP / Jinja2
-
-</details>
-
-<details>
-<summary><strong>Traditional Chinese (繁體中文)</strong></summary>
-
-## Hermit Purple - AI 趨勢研究與決策支援系統
-
-Hermit Purple 是一款基於插件架構的 AI 趨勢研究工具。它從多個平台抓取資料，透過多引擎 AI 搜尋進行交叉驗證，並利用 LLM 合成結構化的情報週報。
-
-### 核心特色
-
-- **插件架構**: AI Trends、Social Radar、AI Business、Trend Radar 各分析領域皆為獨立插件，新增分析管道只需繼承 `HermitPlugin`，無需修改核心程式碼
-- **多源爬取**: 透過直接 API 存取 GitHub、Reddit、YouTube、Bilibili（Tier 1），並以 Perplexica、Gemini Grounding、Grok Search 等 AI 搜尋引擎（Tier 2）進行補充
-- **交叉驗證引擎**: URL 正規化、標題相似度去重、多引擎引用計數，計算信心分數
-- **LLM 決策大腦**: 每項結果由 AI 評估為 Adopt / Trial / Assess / Hold 四個等級，附帶證據摘要與風險備註
-- **情感分析**: 從社群媒體評論中萃取商業信號（付費意願、痛點、需求信號）
-- **MCP 伺服器整合**: 所有功能以 MCP 工具形式暴露，可與 Claude Code、Stitch 等 MCP 客戶端原生對接
-- **速率限制防護**: 基於檔案鎖的 UsageGuard 機制，防止 API 成本失控，支援多行程安全
-
-### 快速開始
-
-```bash
-git clone https://github.com/AtsushiHarimoto/hermit-purple.git
-cd hermit-purple
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env  # 設定 API 金鑰
-python -m src.interface.cli health
-python -m src.interface.cli run ai_trends
-```
-
-### 技術棧概覽
-
-| 模組 | 技術 |
-|---|---|
-| 插件系統 | AI Trends、Social Radar、AI Business、Trend Radar |
-| 資料來源 | GitHub、Reddit、YouTube、Bilibili |
-| AI 搜尋引擎 | Perplexica、Gemini Grounding、Grok Search |
-| LLM 整合 | Gemini API / Grok API / Ollama（OpenAI 相容介面） |
-| 交叉驗證 | URL 正規化 + 標題相似度 + 多引擎引用計數 |
-| 持久化 | SQLite + SQLAlchemy ORM |
-| MCP 伺服器 | FastMCP 框架 |
-| CLI 介面 | Typer + Rich |
-| 反指紋 | PromptPermutator 動態提示詞排列 |
-
-### 隸屬 Moyin 生態系
-
-Hermit Purple 是 [Moyin Factory](https://github.com/AtsushiHarimoto/Moyin-Factory) AI 視覺小說引擎生態系的情報收集組件。
-
-</details>
 
 ---
 
