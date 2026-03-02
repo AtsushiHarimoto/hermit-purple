@@ -35,7 +35,7 @@ class PerplexicaSource(DataSource):
         self._chat_model_provider: str | None = None
         self._chat_model_key: str = "qwen3:14b"
         self._embedding_provider: str | None = None
-        self._embedding_key: str = "nomic-embed-text"
+        self._embedding_key: str = "nomic-embed-text:latest"
 
     @property
     def tier(self) -> SourceTier:
@@ -46,39 +46,103 @@ class PerplexicaSource(DataSource):
         return list(Platform)  # Can discover any platform via web search
 
     def _discover_providers(self) -> None:
-        """Auto-discover Ollama provider IDs from Perplexica API (new /api/providers format)"""
+        """Auto-discover provider IDs + model keys from /api/providers."""
         if self._chat_model_provider:
             return
         try:
             resp = requests.get(f"{self._base_url}/api/providers", timeout=10)
             resp.raise_for_status()
             data = resp.json()
-            # New format: {"providers": [{"id": "...", "name": "Ollama", "chatModels": [...], "embeddingModels": [...]}]}
             providers = data.get("providers", [])
+
+            picked = None
             for p in providers:
-                p_name = (p.get("name") or "").lower()
-                p_id = p.get("id", "")
-                if "ollama" in p_name:
-                    self._chat_model_provider = p_id
-                    self._embedding_provider = p_id
+                if "ollama" in (p.get("name") or "").lower():
+                    picked = p
                     break
-            if not self._chat_model_provider and providers:
-                # Fallback: use first provider with chatModels
+
+            if picked is None:
                 for p in providers:
                     if p.get("chatModels"):
-                        self._chat_model_provider = p["id"]
-                        self._embedding_provider = p["id"]
+                        picked = p
                         break
-            logger.info(f"[Perplexica] Discovered provider: {self._chat_model_provider}")
+
+            if picked is None and providers:
+                picked = providers[0]
+
+            if not picked:
+                raise RuntimeError("No providers available in /api/providers")
+
+            p_id = picked.get("id", "")
+            chat_models = picked.get("chatModels") or []
+            emb_models = picked.get("embeddingModels") or []
+
+            self._chat_model_provider = p_id
+            self._embedding_provider = p_id
+
+            # Prefer qwen3:14b if available, else first chat model key/name.
+            desired_chat = "qwen3:14b"
+            for m in chat_models:
+                if m.get("key") == desired_chat or m.get("name") == desired_chat:
+                    self._chat_model_key = desired_chat
+                    break
+            else:
+                if chat_models:
+                    self._chat_model_key = chat_models[0].get("key") or chat_models[0].get("name") or self._chat_model_key
+
+            # Prefer nomic-embed-text*, else first embedding model.
+            for m in emb_models:
+                key = (m.get("key") or "").lower()
+                name = (m.get("name") or "").lower()
+                if "nomic-embed-text" in key or "nomic-embed-text" in name:
+                    self._embedding_key = m.get("key") or m.get("name") or self._embedding_key
+                    break
+            else:
+                if emb_models:
+                    self._embedding_key = emb_models[0].get("key") or emb_models[0].get("name") or self._embedding_key
+
+            logger.info(
+                "[Perplexica] Discovered provider=%s, chat=%s, embedding=%s",
+                self._chat_model_provider,
+                self._chat_model_key,
+                self._embedding_key,
+            )
         except Exception as e:
             logger.warning(f"[Perplexica] Provider discovery failed: {e}")
             self._chat_model_provider = "ollama"
             self._embedding_provider = "ollama"
 
-    def _search(self, query: str) -> dict[str, Any]:
-        """Execute a single Perplexica search"""
-        self._discover_providers()
-        payload = {
+    def _build_payload_v2(self, query: str) -> dict[str, Any]:
+        """
+        Perplexica vNext payload format.
+
+        Required by current API route:
+        - query
+        - sources
+        - chatModel.providerId/key
+        - embeddingModel.providerId/key
+        """
+        provider_id = self._chat_model_provider or "ollama"
+        emb_provider_id = self._embedding_provider or provider_id
+        return {
+            "chatModel": {
+                "providerId": provider_id,
+                "key": self._chat_model_key,
+            },
+            "embeddingModel": {
+                "providerId": emb_provider_id,
+                "key": self._embedding_key,
+            },
+            "query": query,
+            "sources": ["web"],
+            "history": [],
+            "optimizationMode": "speed",
+            "stream": False,
+        }
+
+    def _build_payload_v1(self, query: str) -> dict[str, Any]:
+        """Legacy payload format for older Perplexica releases."""
+        return {
             "chatModel": {
                 "provider": self._chat_model_provider or "ollama",
                 "model": self._chat_model_key,
@@ -91,11 +155,31 @@ class PerplexicaSource(DataSource):
             "focusMode": "webSearch",
             "optimizationMode": "balanced",
         }
-        resp = requests.post(
-            f"{self._base_url}/api/search",
-            json=payload,
-            timeout=120,
-        )
+
+    def _search(self, query: str) -> dict[str, Any]:
+        """Execute a single Perplexica search"""
+        self._discover_providers()
+        endpoint = f"{self._base_url}/api/search"
+
+        # 1) Try current API format first.
+        payload_v2 = self._build_payload_v2(query)
+        try:
+            resp = requests.post(endpoint, json=payload_v2, timeout=120)
+            if resp.status_code < 400:
+                return resp.json()
+
+            body_head = (resp.text or "")[:240]
+            logger.warning(
+                "[Perplexica] v2 payload failed (status=%s): %s",
+                resp.status_code,
+                body_head,
+            )
+        except Exception as e:
+            logger.warning(f"[Perplexica] v2 request exception: {e}")
+
+        # 2) Backward-compat fallback for legacy payload format.
+        payload_v1 = self._build_payload_v1(query)
+        resp = requests.post(endpoint, json=payload_v1, timeout=120)
         resp.raise_for_status()
         return resp.json()
 

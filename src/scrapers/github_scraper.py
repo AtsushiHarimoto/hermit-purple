@@ -1,7 +1,7 @@
 """
-Hermit Purple GitHub 爬蟲
+VibeDev GitHub 爬蟲
 
-用途：使用 PyGitHub 搜尋 GitHub 上的相關倉庫
+用途：使用 PyGitHub 搜索 GitHub 上的相關倉庫
 依賴：PyGitHub
 """
 

@@ -394,12 +394,12 @@ class TestSmartSearchService(unittest.TestCase):
     @patch("src.services.smart_search.get_env", return_value=make_env())
     def test_run_smart_health_with_explicit_gateway(self, _, mock_health):
         data = smart_search.run_smart_health(
-            gateway_base_url="http://localhost:19001",
+            gateway_base_url="http://127.0.0.1:19001",
             ai_base_url="http://localhost:9009/v1",
             timeout=7.0,
         )
         self.assertEqual(data, {"ok": True})
-        mock_health.assert_called_once_with("http://localhost:19001", timeout=7.0)
+        mock_health.assert_called_once_with("http://127.0.0.1:19001", timeout=7.0)
 
     def test_search_result_to_dict(self):
         result = smart_search.SearchResult(

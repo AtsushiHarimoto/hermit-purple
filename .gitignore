@@ -1,23 +1,7 @@
-# Environment
 .env
 .env.*
 !.env.example
-
-# Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
 .venv/
 venv/
-
-# Testing
-.pytest_cache/
-
-# Data & Reports
-data/*.db
-data/*.json
-reports/
-
-# Logs
-*.log

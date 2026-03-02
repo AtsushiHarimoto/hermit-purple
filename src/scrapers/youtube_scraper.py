@@ -1,7 +1,7 @@
 """
-Hermit Purple YouTube 爬蟲
+VibeDev YouTube 爬蟲
 
-用途：使用 yt-dlp 搜尋 YouTube 上的相關影片
+用途：使用 yt-dlp 搜索 YouTube 上的相關視頻
 依賴：yt-dlp
 """
 

@@ -7,7 +7,8 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-# Add project root to sys.path to ensure absolute imports work
+# Add root to sys.path to ensure absolute imports work
+# root = tools/hermit-purple/
 root_path = Path(__file__).parents[2]
 if str(root_path) not in sys.path:
     sys.path.insert(0, str(root_path))
@@ -72,8 +73,8 @@ def health():
 
 @app.command(name="search-health")
 def search_health(
-    gateway_base_url: Optional[str] = typer.Option(None, "--gateway-base-url", help="Gateway base URL, e.g. http://localhost:PORT"),
-    ai_base_url: Optional[str] = typer.Option(None, "--ai-base-url", help="OpenAI-compatible base URL, e.g. http://localhost:PORT/v1"),
+    gateway_base_url: Optional[str] = typer.Option(None, "--gateway-base-url", help="Gateway base URL, e.g. http://localhost:9009"),
+    ai_base_url: Optional[str] = typer.Option(None, "--ai-base-url", help="OpenAI-compatible base URL, e.g. http://localhost:9009/v1"),
     timeout: int = typer.Option(6, "--timeout", min=1, max=60, help="Health check timeout (seconds)"),
     raw: bool = typer.Option(False, "--raw", help="Output JSON only"),
 ):
@@ -105,8 +106,8 @@ def search(
     query: str = typer.Argument(..., help="Search query"),
     gemini_model: Optional[str] = typer.Option(None, "--gemini-model", help="Primary Gemini model"),
     grok_model: Optional[str] = typer.Option(None, "--grok-model", help="Fallback Grok model"),
-    gateway_base_url: Optional[str] = typer.Option(None, "--gateway-base-url", help="Gateway base URL, e.g. http://localhost:PORT"),
-    ai_base_url: Optional[str] = typer.Option(None, "--ai-base-url", help="OpenAI-compatible base URL, e.g. http://localhost:PORT/v1"),
+    gateway_base_url: Optional[str] = typer.Option(None, "--gateway-base-url", help="Gateway base URL, e.g. http://localhost:9009"),
+    ai_base_url: Optional[str] = typer.Option(None, "--ai-base-url", help="OpenAI-compatible base URL, e.g. http://localhost:9009/v1"),
     timeout: int = typer.Option(90, "--timeout", min=10, max=300, help="Request timeout (seconds)"),
     raw: bool = typer.Option(False, "--raw", help="Output JSON only"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show traceback on failure"),

@@ -3,14 +3,10 @@ param()
 
 $ErrorActionPreference = "Stop"
 
-# TODO: Set $gatewayDir to the path where your LLM gateway (e.g. moyin-gateway) is installed.
-# Example: $gatewayDir = "C:\path\to\your\gateway"
-$gatewayDir = $env:HERMIT_GATEWAY_DIR
-if (-not $gatewayDir) {
-    throw "Please set the HERMIT_GATEWAY_DIR environment variable to your gateway directory path."
-}
+$repoRoot = $PSScriptRoot | Split-Path -Parent | Split-Path -Parent
+$gatewayDir = Join-Path $repoRoot "projects\moyin-gateway"
 $gameApiScript = Join-Path $gatewayDir "run_game_api.ps1"
-$firefoxPath = "C:\Program Files\Mozilla Firefox\firefox.exe"  # Adjust to your Firefox path
+$firefoxPath = "firefox"
 $targets = @(
     "https://grok.com/",
     "https://gemini.google.com/"

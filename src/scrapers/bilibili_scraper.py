@@ -1,7 +1,7 @@
 """
-Hermit Purple Bilibili 爬蟲
+VibeDev Bilibili 爬蟲
 
-用途：使用 yt-dlp 搜尋 Bilibili 上的相關影片，含 3 層降級鏈
+用途：使用 yt-dlp 搜索 Bilibili 上的相關視頻，含 3 層降級鏈
 依賴：yt-dlp, requests
 降級鏈：yt-dlp bilisearch → Bilibili Web API → 空列表（交由 Source 層處理 Tier 2）
 """

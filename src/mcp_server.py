@@ -177,6 +177,73 @@ init_db()
 logger = logging.getLogger("mcp_server")
 
 
+def _collect_tier2_results(
+    keywords: list[str],
+    days: int,
+) -> tuple[list[Any], dict[str, Any]]:
+    """Collect results from Tier 2 engines (Perplexica/Gemini/Grok)."""
+    stats: dict[str, Any] = {
+        "enabled_engines": 0,
+        "successful_engines": 0,
+        "total_results": 0,
+        "engines": {},
+        "perplexica_attempted": False,
+        "perplexica_used": False,
+        "selected_mode": "none",
+    }
+    collected: list[Any] = []
+
+    registry_builder = globals().get("build_default_registry")
+    if registry_builder is None:
+        try:
+            from .sources.registry import build_default_registry as registry_builder
+        except Exception as e:
+            logger.warning(f"[scrape_ai_trends] Tier2 registry unavailable: {e}")
+            stats["error"] = str(e)
+            return [], stats
+
+    try:
+        registry = registry_builder()
+        engines = registry.get_tier2_engines()
+    except Exception as e:
+        logger.warning(f"[scrape_ai_trends] Tier2 registry init failed: {e}")
+        stats["error"] = str(e)
+        return [], stats
+
+    # Force deterministic priority: Perplexica first, then others.
+    engines = sorted(
+        engines,
+        key=lambda eng: 0 if eng.__class__.__name__ == "PerplexicaSource" else 1,
+    )
+
+    stats["enabled_engines"] = len(engines)
+    for engine in engines:
+        engine_name = engine.__class__.__name__
+        if engine_name == "PerplexicaSource":
+            stats["perplexica_attempted"] = True
+        try:
+            engine_results = engine.fetch(keywords, days=days)
+            count = len(engine_results)
+            stats["engines"][engine_name] = {"ok": True, "count": count}
+            if count > 0:
+                stats["successful_engines"] += 1
+                # If Perplexica has data, use it directly as primary source.
+                if engine_name == "PerplexicaSource":
+                    stats["perplexica_used"] = True
+                    stats["selected_mode"] = "tier2_perplexica"
+                    stats["total_results"] = count
+                    return engine_results, stats
+                collected.extend(engine_results)
+        except Exception as e:
+            stats["engines"][engine_name] = {"ok": False, "count": 0, "error": str(e)}
+            logger.warning(f"[scrape_ai_trends] Tier2 engine {engine_name} failed: {e}")
+
+    stats["total_results"] = len(collected)
+    if collected:
+        stats["selected_mode"] = "tier2_other"
+    return collected, stats
+
+
 @mcp.resource("hermit://resources/pending")
 def list_pending_resources() -> str:
     """獲取所有待審核的資源列表 (JSON)"""
@@ -277,8 +344,14 @@ def scrape_ai_trends(keywords: str, days: int = 3, category: str = "") -> str:
     """
     try:
         kw_list = [k.strip() for k in keywords.split(",") if k.strip()]
-        scraper = AIScraper()
-        results = scraper.scrape(keywords=kw_list, days=days, category=category)
+        tier2_results, tier2_stats = _collect_tier2_results(kw_list, days)
+
+        fetch_mode = str(tier2_stats.get("selected_mode") or "tier2")
+        results = tier2_results
+        if not results:
+            fetch_mode = "aiscraper_fallback"
+            scraper = AIScraper()
+            results = scraper.scrape(keywords=kw_list, days=days, category=category)
 
         save_count = 0
         cat = category.strip()
@@ -300,6 +373,10 @@ def scrape_ai_trends(keywords: str, days: int = 3, category: str = "") -> str:
                     .first()
                 )
                 if not existing:
+                    source_tier = getattr(res, "source_tier", "ai_search")
+                    if hasattr(source_tier, "value"):
+                        source_tier = source_tier.value
+                    citation_urls = getattr(res, "citation_urls", None)
                     r_db = Resource(
                         platform=res.platform,
                         external_id=res.external_id,
@@ -310,8 +387,8 @@ def scrape_ai_trends(keywords: str, days: int = 3, category: str = "") -> str:
                         metrics=res.metrics,
                         tags=res.tags,
                         created_at=res.created_at,
-                        source_tier=getattr(res, "source_tier", "ai_search"),
-                        citation_urls=getattr(res, "citation_urls", None),
+                        source_tier=source_tier,
+                        citation_urls=citation_urls,
                     )
                     db.add(r_db)
                     db.flush()  # assign r_db.id
@@ -330,6 +407,10 @@ def scrape_ai_trends(keywords: str, days: int = 3, category: str = "") -> str:
             "data": {
                 "scraped": len(results),
                 "saved": save_count,
+                "fetch_mode": fetch_mode,
+                "tier2_used": bool(tier2_results),
+                "perplexica_used": bool(tier2_stats.get("perplexica_used")),
+                "tier2_stats": tier2_stats,
                 "details": f"Scraped {len(results)} items. Saved {save_count} new items.",
             },
         })

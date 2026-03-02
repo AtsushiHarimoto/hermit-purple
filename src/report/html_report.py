@@ -133,7 +133,7 @@ def generate_html_report(
 
     @param plugin_name: Name of the plugin (ai_trends, ai_business, etc.)
     @param items: List of processed items with 'analysis' dict
-    @param reports_dir: Output directory (default: hermit-purple/reports/)
+    @param reports_dir: Output directory (default: tools/hermit-purple/reports/)
     @returns: Path to the generated HTML file
     """
     if reports_dir is None:

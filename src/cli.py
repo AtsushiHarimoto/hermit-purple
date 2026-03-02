@@ -1,7 +1,7 @@
 """
-Hermit Purple CLI Shim
+VibeDev CLI Shim
 Backwards compatibility wrapper for workflows expecting `src.cli`.
-Redirects to hermit-purple Interface.
+Redirects to VibeDev 2.0 Interface.
 """
 import sys
 from .interface.cli import app
