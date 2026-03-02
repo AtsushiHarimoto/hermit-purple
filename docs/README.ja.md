@@ -1,6 +1,6 @@
 # Hermit Purple
 
-**AI トレンドリサーチ＆意思決定支援システム**
+**オープンソース AI トレンドモニタリングツール**
 
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
@@ -8,9 +8,9 @@
 
 🌏 **言語:** [English](../README.md) | [日本語](README.ja.md) | [繁體中文](README.zh-TW.md)
 
-Hermit Purple は、プラグインベースの AI トレンドリサーチツールです。複数プラットフォームをクロールし、マルチエンジン AI 検索による交差検証を行い、LLM を活用して構造化されたインテリジェンスレポートを生成します。
+Hermit Purple は、プラグインベースの読み取り専用リサーチツールです。複数プラットフォームの公開ディスカッションを集約し、マルチエンジン AI 検索による交差検証を行い、LLM を活用して個人用の週次サマリーを生成します。
 
-AI・テクノロジーの急速なトレンド変化を追いかける開発者やチームのために設計されています。ノイズに埋もれることなく、本当に重要な情報だけを効率的に収集・分析します。
+AI・テクノロジーの急速なトレンド変化を追いかけたい方のための非商用サイドプロジェクトです。ノイズに埋もれることなく、本当に重要な情報だけを効率的に収集します。
 
 ---
 
@@ -31,14 +31,14 @@ graph LR
     subgraph Engine ["分析エンジン"]
         CR[マルチソースクローラー]
         CV[交差検証エンジン]
-        SA[センチメント分析]
-        LLM[LLM 判定ブレイン]
+        SA[トピック分類器]
+        LLM[LLM サマライザー]
     end
 
     subgraph Pipeline ["プラグインパイプライン"]
         AT[AI Trends]
         SR[Social Radar]
-        AB[AI Business]
+        AB[AI Ecosystem]
         TR[Trend Radar]
     end
 
@@ -63,9 +63,9 @@ graph LR
 
 1. **マルチソースクローリング** -- Tier 1（直接 API）と Tier 2（AI 検索エンジン）のソースを並列でクエリ実行
 2. **交差検証** -- URL 正規化、タイトル重複排除、マルチエンジン引用カウントにより信頼度スコアを算出
-3. **LLM 分析** -- 各結果を Decision Brain（Gemini / Grok / Ollama）が評価し、Adopt / Trial / Assess / Hold の判定を付与。エビデンスとリスクノートを添付
-4. **センチメント抽出** -- ソーシャルメディアのコメントから商業的シグナル（支払い意欲、ペインポイント）を分析
-5. **レポート合成** -- AI「編集長」が、エグゼクティブサマリー・主要トレンド・注目ツールを含む週次 Markdown レポートを生成
+3. **LLM 分類** -- 各結果を LLM（Gemini / Grok / Ollama）が評価し、Adopt / Trial / Assess / Hold の成熟度ラベルを付与。簡潔な根拠を添付
+4. **トピック抽出** -- 公開投稿のタイトルと本文をトピック別に分類し、コミュニティの関心度と繰り返し登場するテーマを把握
+5. **レポート合成** -- LLM サマライザーが主要トレンドと注目プロジェクトを含む週次 Markdown レポートを生成
 
 ---
 
@@ -73,7 +73,7 @@ graph LR
 
 | 判断 | 根拠 |
 |---|---|
-| **プラグインアーキテクチャ** | 各分析ドメイン（AI Trends、Social Radar、AI Business、Trend Radar）はイベントコールバック付きの独立プラグイン。`HermitPlugin` を継承するだけで新しいパイプラインを追加可能。コア変更は一切不要。 |
+| **プラグインアーキテクチャ** | 各分析ドメイン（AI Trends、Social Radar、AI Ecosystem、Trend Radar）はイベントコールバック付きの独立プラグイン。`HermitPlugin` を継承するだけで新しいパイプラインを追加可能。コア変更は一切不要。 |
 | **階層型ソースレジストリ** | ソースを Tier 1（直接 API）、Tier 2（AI 検索エンジン）、Tier 3（Web クローラー）に分類。レジストリパターンによりヘルスチェックとフォールバックチェーンを実現。 |
 | **クロスエンジン検証** | Perplexica、Gemini Grounding、Grok Search の結果を URL 正規化とタイトル類似度で交差検証。2 つ以上のエンジンで確認された項目は信頼度ブーストを取得。 |
 | **プロンプト反フィンガープリンティング** | `PromptPermutator` がペルソナ、タスクの言い回し、出力形式指示をローテーションし、反復的な API シグネチャを回避。 |
@@ -154,8 +154,8 @@ hermit-purple/
 |-- src/
 |   |-- core/                # コアエンジン
 |   |   |-- plugin.py        #   プラグイン基底クラス＆マネージャー
-|   |   |-- llm.py           #   LLM 判定ブレイン（判定スコアリング）
-|   |   |-- sentiment.py     #   商業シグナル抽出
+|   |   |-- llm.py           #   LLM サマライザー（成熟度スコアリング）
+|   |   |-- sentiment.py     #   トピック＆関心度抽出
 |   |   |-- guard.py         #   レート制限防御（ファイルロックベース）
 |   |   |-- prompt_engine.py #   反フィンガープリンティング用プロンプト置換器
 |   |   +-- config.py        #   Pydantic 設定＆環境変数
@@ -171,8 +171,8 @@ hermit-purple/
 |   |   +-- grok_search.py   #   Grok Web 検索
 |   |-- plugins/             # 分析パイプライン（自動検出）
 |   |   |-- ai_trends/       #   AI/ML トレンド追跡
-|   |   |-- social_radar/    #   ソーシャルメディアセンチメント
-|   |   |-- ai_business/     #   収益化＆競合分析
+|   |   |-- social_radar/    #   コミュニティディスカッション追跡
+|   |   |-- ai_business/     #   AI エコシステム＆ツール概観
 |   |   +-- trend_radar/     #   新興技術レーダー
 |   |-- scrapers/            # プラットフォーム固有クローラー
 |   |-- pipelines/           # パイプライン基底＆レジストリ
@@ -221,12 +221,12 @@ class MyPlugin(HermitPlugin):
 
 ## Moyin エコシステムの一部
 
-Hermit Purple は、AI 搭載のビジュアルノベルエンジンエコシステム [Moyin Factory](https://github.com/AtsushiHarimoto/Moyin-Factory) の情報収集コンポーネントです。
+Hermit Purple は、AI 搭載のビジュアルノベルエンジンエコシステム [Moyin Factory](https://github.com/AtsushiHarimoto/Moyin-Factory) のトレンドモニタリングコンポーネントです。
 
 | コンポーネント | 役割 |
 |---|---|
 | **Moyin Factory** | コアビジュアルノベルエンジン（Vue 3 + TypeScript） |
-| **Hermit Purple** | AI トレンドリサーチ＆意思決定支援（このリポジトリ） |
+| **Hermit Purple** | AI トレンドモニタリング＆週次サマリー（このリポジトリ） |
 | **Moyin Gateway** | LLM API ゲートウェイ（Gemini / Grok リバースプロキシ） |
 
 ---

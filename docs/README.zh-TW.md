@@ -1,6 +1,6 @@
 # Hermit Purple
 
-**AI 趨勢研究與決策支援系統**
+**開源 AI 趨勢監測工具**
 
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
@@ -8,9 +8,9 @@
 
 🌏 **語言:** [English](../README.md) | [日本語](README.ja.md) | [繁體中文](README.zh-TW.md)
 
-Hermit Purple 是一款基於插件架構的 AI 趨勢研究工具。它從多個平台抓取資料，透過多引擎 AI 搜尋進行交叉驗證，並利用 LLM 合成結構化的情報週報。
+Hermit Purple 是一款基於插件架構的唯讀研究工具。它聚合多個平台的公開討論，透過多引擎 AI 搜尋進行交叉驗證，並利用 LLM 生成個人用的週次摘要。
 
-專為需要掌握 AI 與技術快速趨勢變化的開發者和團隊而設計，讓你在資訊洪流中精準擷取真正重要的訊號。
+一個非商業的個人專案，讓你在資訊洪流中精準擷取真正重要的 AI/科技趨勢。
 
 ---
 
@@ -31,14 +31,14 @@ graph LR
     subgraph Engine ["分析引擎"]
         CR[多源爬取器]
         CV[交叉驗證引擎]
-        SA[情感分析器]
-        LLM[LLM 決策大腦]
+        SA[主題分類器]
+        LLM[LLM 摘要器]
     end
 
     subgraph Pipeline ["插件管道"]
         AT[AI Trends]
         SR[Social Radar]
-        AB[AI Business]
+        AB[AI Ecosystem]
         TR[Trend Radar]
     end
 
@@ -63,9 +63,9 @@ graph LR
 
 1. **多源爬取** -- Tier 1（直接 API）與 Tier 2（AI 搜尋引擎）的資料來源並行查詢
 2. **交叉驗證** -- 透過 URL 正規化、標題去重、多引擎引用計數產生信心分數
-3. **LLM 分析** -- 每項結果由 Decision Brain（Gemini / Grok / Ollama）評估，給予 Adopt / Trial / Assess / Hold 判定，附帶證據摘要與風險備註
-4. **情感萃取** -- 分析社群媒體留言中的商業信號（付費意願、痛點、需求信號）
-5. **報告合成** -- AI「總編輯」生成包含執行摘要、關鍵趨勢、焦點工具的週報（Markdown 格式）
+3. **LLM 分類** -- 每項結果由 LLM（Gemini / Grok / Ollama）評估，給予 Adopt / Trial / Assess / Hold 成熟度標籤，附帶簡要理由
+4. **主題萃取** -- 將公開貼文的標題與內文依主題分類，了解社群關注度與反覆出現的話題
+5. **報告合成** -- LLM 摘要器生成包含關鍵趨勢與值得關注專案的週報（Markdown 格式）
 
 ---
 
@@ -73,7 +73,7 @@ graph LR
 
 | 決策 | 理由 |
 |---|---|
-| **插件架構** | 每個分析領域（AI Trends、Social Radar、AI Business、Trend Radar）皆為帶有事件回呼的獨立插件。只需繼承 `HermitPlugin` 即可新增管道，完全不需要修改核心程式碼。 |
+| **插件架構** | 每個分析領域（AI Trends、Social Radar、AI Ecosystem、Trend Radar）皆為帶有事件回呼的獨立插件。只需繼承 `HermitPlugin` 即可新增管道，完全不需要修改核心程式碼。 |
 | **階層式來源註冊表** | 來源分為 Tier 1（直接 API）、Tier 2（AI 搜尋引擎）、Tier 3（網頁爬蟲）。註冊表模式支援健康檢查與降級備援鏈。 |
 | **跨引擎交叉驗證** | Perplexica、Gemini Grounding、Grok Search 的結果透過 URL 正規化與標題相似度進行交叉驗證。經 2 個以上引擎確認的項目獲得信心加成。 |
 | **提示詞反指紋** | `PromptPermutator` 輪替角色設定、任務措辭、輸出格式指令，避免產生重複的 API 簽名。 |
@@ -154,8 +154,8 @@ hermit-purple/
 |-- src/
 |   |-- core/                # 核心引擎
 |   |   |-- plugin.py        #   插件基底類別與管理器
-|   |   |-- llm.py           #   LLM 決策大腦（判定評分）
-|   |   |-- sentiment.py     #   商業信號萃取
+|   |   |-- llm.py           #   LLM 摘要器（成熟度評分）
+|   |   |-- sentiment.py     #   主題與關注度萃取
 |   |   |-- guard.py         #   速率限制防禦（基於檔案鎖）
 |   |   |-- prompt_engine.py #   反指紋提示詞置換器
 |   |   +-- config.py        #   Pydantic 設定與環境變數
@@ -171,8 +171,8 @@ hermit-purple/
 |   |   +-- grok_search.py   #   Grok 網頁搜尋
 |   |-- plugins/             # 分析管道（自動探索）
 |   |   |-- ai_trends/       #   AI/ML 趨勢追蹤
-|   |   |-- social_radar/    #   社群媒體情感分析
-|   |   |-- ai_business/     #   商業化與競爭者分析
+|   |   |-- social_radar/    #   社群討論追蹤
+|   |   |-- ai_business/     #   AI 生態系與工具概覽
 |   |   +-- trend_radar/     #   新興技術雷達
 |   |-- scrapers/            # 平台專用爬蟲
 |   |-- pipelines/           # 管道基底與註冊表
@@ -221,12 +221,12 @@ class MyPlugin(HermitPlugin):
 
 ## 隸屬 Moyin 生態系
 
-Hermit Purple 是 AI 視覺小說引擎生態系 [Moyin Factory](https://github.com/AtsushiHarimoto/Moyin-Factory) 的情報收集組件。
+Hermit Purple 是 AI 視覺小說引擎生態系 [Moyin Factory](https://github.com/AtsushiHarimoto/Moyin-Factory) 的趨勢監測組件。
 
 | 組件 | 角色 |
 |---|---|
 | **Moyin Factory** | 核心視覺小說引擎（Vue 3 + TypeScript） |
-| **Hermit Purple** | AI 趨勢研究與決策支援（本倉庫） |
+| **Hermit Purple** | AI 趨勢監測與週次摘要（本倉庫） |
 | **Moyin Gateway** | LLM API 閘道（Gemini / Grok 反向代理） |
 
 ---

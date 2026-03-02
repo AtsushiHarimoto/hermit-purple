@@ -1,6 +1,6 @@
 # Hermit Purple
 
-**AI Trend Research & Decision Support System**
+**Open-Source AI Trend Monitoring Tool**
 
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
@@ -8,9 +8,9 @@
 
 🌏 **Languages:** [English](README.md) | [日本語](docs/README.ja.md) | [繁體中文](docs/README.zh-TW.md)
 
-Hermit Purple is a plugin-based AI trend research tool that crawls multiple platforms, cross-validates findings through multi-engine AI search, and synthesizes structured intelligence reports using LLMs.
+Hermit Purple is a plugin-based, read-only research tool that aggregates public discussions from multiple platforms, cross-validates findings through multi-engine AI search, and generates personal weekly summaries using LLMs.
 
-Built for developers and teams who need to stay ahead of fast-moving AI/tech trends without drowning in noise.
+A non-commercial side project for anyone who wants to keep up with fast-moving AI/tech trends without drowning in noise.
 
 ---
 
@@ -31,14 +31,14 @@ graph LR
     subgraph Engine ["Analysis Engine"]
         CR[Multi-Source Crawler]
         CV[Cross Validator]
-        SA[Sentiment Analyzer]
-        LLM[LLM Decision Brain]
+        SA[Topic Classifier]
+        LLM[LLM Summarizer]
     end
 
     subgraph Pipeline ["Plugin Pipelines"]
         AT[AI Trends]
         SR[Social Radar]
-        AB[AI Business]
+        AB[AI Ecosystem]
         TR[Trend Radar]
     end
 
@@ -63,9 +63,9 @@ graph LR
 
 1. **Multi-Source Crawling** -- Tier 1 (direct API) and Tier 2 (AI-powered search) sources are queried in parallel
 2. **Cross-Validation** -- URL normalization, title deduplication, and multi-engine citation counting produce a confidence score
-3. **LLM Analysis** -- Each result is evaluated by a Decision Brain (Gemini / Grok / Ollama) that assigns a verdict (Adopt / Trial / Assess / Hold) with evidence and risk notes
-4. **Sentiment Extraction** -- Social media comments are analyzed for commercial signals, willingness-to-pay, and pain points
-5. **Report Synthesis** -- An AI "editor-in-chief" generates weekly Markdown reports with executive summaries, key trends, and spotlight tools
+3. **LLM Classification** -- Each result is evaluated by an LLM (Gemini / Grok / Ollama) that assigns a maturity label (Adopt / Trial / Assess / Hold) with brief rationale
+4. **Topic Extraction** -- Public post titles and text are categorized by topic, community interest level, and recurring themes
+5. **Report Synthesis** -- An LLM summarizer generates weekly Markdown reports with key trends and notable projects
 
 ---
 
@@ -73,7 +73,7 @@ graph LR
 
 | Decision | Rationale |
 |---|---|
-| **Plugin Architecture** | Each analysis domain (AI Trends, Social Radar, AI Business, Trend Radar) is a self-contained plugin with event callbacks. New pipelines are added by subclassing `HermitPlugin` -- zero core changes required. |
+| **Plugin Architecture** | Each analysis domain (AI Trends, Social Radar, AI Ecosystem, Trend Radar) is a self-contained plugin with event callbacks. New pipelines are added by subclassing `HermitPlugin` -- zero core changes required. |
 | **Tiered Source Registry** | Sources are classified into Tier 1 (direct API), Tier 2 (AI search engines), and Tier 3 (web crawlers). The registry pattern enables health-checking and fallback chains. |
 | **Cross-Engine Validation** | Results from Perplexica, Gemini Grounding, and Grok Search are cross-validated by URL normalization and title similarity. Items confirmed by 2+ engines receive a confidence boost. |
 | **Prompt Anti-Fingerprinting** | The `PromptPermutator` rotates personas, task phrasings, and output format directives to avoid repetitive API signatures. |
@@ -154,8 +154,8 @@ hermit-purple/
 |-- src/
 |   |-- core/                # Core engines
 |   |   |-- plugin.py        #   Plugin base class & manager
-|   |   |-- llm.py           #   LLM Decision Brain (verdict scoring)
-|   |   |-- sentiment.py     #   Commercial signal extraction
+|   |   |-- llm.py           #   LLM summarizer (maturity scoring)
+|   |   |-- sentiment.py     #   Topic & interest extraction
 |   |   |-- guard.py         #   Rate limit defense (file-lock based)
 |   |   |-- prompt_engine.py #   Anti-fingerprinting prompt permutator
 |   |   +-- config.py        #   Pydantic config & env settings
@@ -171,8 +171,8 @@ hermit-purple/
 |   |   +-- grok_search.py   #   Grok web search
 |   |-- plugins/             # Analysis pipelines (auto-discovered)
 |   |   |-- ai_trends/       #   AI/ML trend tracking
-|   |   |-- social_radar/    #   Social media sentiment
-|   |   |-- ai_business/     #   Monetization & competitor analysis
+|   |   |-- social_radar/    #   Community discussion tracking
+|   |   |-- ai_business/     #   AI ecosystem & tooling landscape
 |   |   +-- trend_radar/     #   Emerging technology radar
 |   |-- scrapers/            # Platform-specific crawlers
 |   |-- pipelines/           # Pipeline base & registry
@@ -221,12 +221,12 @@ class MyPlugin(HermitPlugin):
 
 ## Part of the Moyin Ecosystem
 
-Hermit Purple is the intelligence-gathering component of [Moyin Factory](https://github.com/AtsushiHarimoto/Moyin-Factory), an AI-powered visual novel engine ecosystem.
+Hermit Purple is the trend-monitoring component of [Moyin Factory](https://github.com/AtsushiHarimoto/Moyin-Factory), an AI-powered visual novel engine ecosystem.
 
 | Component | Role |
 |---|---|
 | **Moyin Factory** | Core visual novel engine (Vue 3 + TypeScript) |
-| **Hermit Purple** | AI trend research & decision support (this repo) |
+| **Hermit Purple** | AI trend monitoring & weekly summaries (this repo) |
 | **Moyin Gateway** | LLM API gateway (Gemini / Grok reverse proxy) |
 
 ---
