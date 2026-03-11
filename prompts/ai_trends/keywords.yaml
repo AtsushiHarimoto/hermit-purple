@@ -1,6 +1,6 @@
 # AI 趨勢分析關鍵詞配置
 # 這些關鍵詞將用於 AI 趨勢抓取 Pipeline
-# 與 tools/skills-switch/gui/src/constants/domainPresets.ts 保持同步
+# 與 tools/dev-dashboard/gui/src/constants/domainPresets.ts 保持同步
 # 同步驗證：修改此檔後請同步更新 domainPresets.ts，並執行 keyword count 檢查
 # 淘汰規則：連續 90 天無命中的關鍵詞應降權或移除
 # 最後更新：2026-02-22
